@@ -1,6 +1,14 @@
 const express = require('express');
+const session = require('express-session');
 const router = express.Router();
 const services = require('../services');
+const user = require ('../services');
+var sqlite3 = require('sqlite3').verbose();
+var file = "./database/db.sqlite";
+var db = new sqlite3.Database(file);
+
+
+
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -21,12 +29,36 @@ router.post('/register', function(req, res, next) {
 
 router.get('/login', function(req, res, next) {
   res.render('login', { title: 'Login' });
-});
+  
+  
 
+});
+router.get('/adminpage', function(req, res, next) {
+  res.render('adminpage', { title: 'admin' });
+  
+  
+
+});
+  
 router.post('/login', function(req, res, next) {
+  var username = req.body.username;
+  var password = req.body.password;
+  db.all("SELECT role FROM users where username = ? and password=?",[username,password] ,function(err, rows) {
+    rows.forEach(function (row) {
+        session.role = row.role;
+
+    })
+});	
+db.close();
   services.loginUser(req.body).then(done => {
     req.session.isAuthenticated = true;
-    res.redirect('/dashboard');
+    console.log (session.role);
+    if ( !session.role) {
+    
+    res.redirect('/dashboard')}
+    else {
+        res.redirect('/adminpage')
+    };
   }).catch(error => {
     res.json(error);
   });
@@ -44,10 +76,19 @@ router.get('/dashboard', function(req, res, next) {
   }
 
   res.render('dashboard', { title: 'Dashboard' });
+  
+  
 });
+
 
 router.get('/upload', function(req, res, next) {
   res.render('upload', { title: 'Upload' });
 });
+ 
+
+
+
+
+
 
 module.exports = router;
