@@ -22,7 +22,8 @@ module.exports = {
       const user = models.user.build({
         email: body.email,
         username: body.username,
-        password: body.password
+        password: body.password,
+        role : 0  //new
       });
 
       await user.save();
