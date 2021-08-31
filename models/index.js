@@ -5,9 +5,6 @@ const sequelize = require('../db');
 })();
 
 module.exports = {
+  har: require('./har'),
   user: require('./user')
-};
-
-module.exports = {
-  har: require('./har')
 };
