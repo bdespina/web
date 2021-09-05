@@ -1,0 +1,42 @@
+{% extends 'layout.twig' %}
+
+{% block body %}
+  <h1>{{title}}</h1>
+
+  
+<!-- The `multiple` attribute lets users select multiple files. -->
+<input type="file" id="file-selector" multiple accept=".har">
+
+<script>
+  const fileSelector = document.getElementById('file-selector');
+  fileSelector.addEventListener('change', (event) => {
+    const fileList = event.target.files;
+    console.log(fileList);
+  });
+</script>
+
+
+<h3>Or drag your files here</h3>
+<div id="file-drag"></div>
+<ul id="output"></ul>
+
+<script>
+  const dropArea = document.getElementById('drop-area');
+
+  dropArea.addEventListener('dragover', (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+    // Style the drag-and-drop as a "copy file" operation.
+    event.dataTransfer.dropEffect = 'copy';
+  });
+
+  dropArea.addEventListener('drop', (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+    const fileList = event.dataTransfer.files;
+    console.log(fileList);
+  });
+</script>
+
+{% endblock %}
+
