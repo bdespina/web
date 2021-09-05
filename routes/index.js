@@ -8,16 +8,16 @@ var file = "./database/db.sqlite";
 var db = new sqlite3.Database(file);
 
 
-
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+
 router.get('/register', function(req, res, next) {
   res.render('register', { title: 'Register' });
 });
+
 
 router.post('/register', function(req, res, next) {
   services.registerUser(req.body).then(done => {
@@ -27,18 +27,11 @@ router.post('/register', function(req, res, next) {
   });
 });
 
+
 router.get('/login', function(req, res, next) {
   res.render('login', { title: 'Login' });
-  
-  
-
 });
-router.get('/adminpage', function(req, res, next) {
-  res.render('adminpage', { title: 'admin' });
-  
-  
 
-});
   
 router.post('/login', function(req, res, next) {
   var username = req.body.username;
@@ -46,49 +39,54 @@ router.post('/login', function(req, res, next) {
   db.all("SELECT role FROM users where username = ? and password=?",[username,password] ,function(err, rows) {
     rows.forEach(function (row) {
         session.role = row.role;
-
     })
-});	
-db.close();
+  });	
+  db.close();
   services.loginUser(req.body).then(done => {
     req.session.isAuthenticated = true;
     console.log (session.role);
     if ( !session.role) {
-    
-    res.redirect('/dashboard')}
-    else {
+      res.redirect('/dashboard')}
+      else {
         res.redirect('/adminpage')
-    };
-  }).catch(error => {
+      };
+    }).catch(error => {
     res.json(error);
-  });
+    });
 });
+
 
 router.get('/logout', function(req, res, next) {
   req.session.isAuthenticated = false;
   res.redirect('/login');
 });
 
+
 router.get('/dashboard', function(req, res, next) {
   if (!req.session.isAuthenticated) {
     res.redirect('/login');
     return;
   }
-
   res.render('dashboard', { title: 'Dashboard' });
-  
-  
+});
+
+
+router.get('/adminpage', function(req, res, next) {
+  if (!req.session.isAuthenticated) {
+    res.redirect('/login');
+    return;
+  }
+  res.render('adminpage', { title: 'Admin Page' });
 });
 
 
 router.get('/upload', function(req, res, next) {
-  res.render('upload', { title: 'Upload' });
+  if (!req.session.isAuthenticated) {
+    res.redirect('/login');
+    return;
+  }
+  res.render('upload', { title: 'Upload HAR File' });
 });
+
  
-
-
-
-
-
-
 module.exports = router;
