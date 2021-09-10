@@ -1,42 +1,64 @@
 {% extends 'layout.twig' %}
 
+{% block javascripts %}
+  <script src="javascripts/upload.js"></script>
+{% endblock %}
+
 {% block body %}
   <h1>{{title}}</h1>
 
-  
-<!-- The `multiple` attribute lets users select multiple files. -->
-<input type="file" id="file-selector" multiple accept=".har">
+<input type="file" id="files" name="files[]" multiple accept=".har"/>
+<output id="list"></output>
 
 <script>
-  const fileSelector = document.getElementById('file-selector');
-  fileSelector.addEventListener('change', (event) => {
-    const fileList = event.target.files;
-    console.log(fileList);
-  });
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+    for (var i = 0, f; f = files[i]; i++) {
+      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                  f.size, ' bytes, last modified: ',
+                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+                  '</li>');
+    }
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+  }
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
 </script>
 
-
-<h3>Or drag your files here</h3>
-<div id="file-drag"></div>
-<ul id="output"></ul>
+<div id="drop_zone">Drop files here</div>
+<output id="list"></output>
 
 <script>
-  const dropArea = document.getElementById('drop-area');
+  function handleFileSelect(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
 
-  dropArea.addEventListener('dragover', (event) => {
-    event.stopPropagation();
-    event.preventDefault();
-    // Style the drag-and-drop as a "copy file" operation.
-    event.dataTransfer.dropEffect = 'copy';
-  });
+    var files = evt.dataTransfer.files; // FileList object.
 
-  dropArea.addEventListener('drop', (event) => {
-    event.stopPropagation();
-    event.preventDefault();
-    const fileList = event.dataTransfer.files;
-    console.log(fileList);
-  });
-</script>
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+    for (var i = 0, f; f = files[i]; i++) {
+      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                  f.size, ' bytes, last modified: ',
+                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+                  '</li>');
+    }
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+  }
 
+  function handleDragOver(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+  }
+
+  // Setup the dnd listeners.
+  var dropZone = document.getElementById('drop_zone');
+  dropZone.addEventListener('dragover', handleDragOver, false);
+  dropZone.addEventListener('drop', handleFileSelect, false);
+</script
 {% endblock %}
 
