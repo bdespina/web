@@ -3,5 +3,35 @@
 {% block body %}
 <h1>{{title}}</h1>
 <p>Welcome to {{title}}</p>
+
+
+<div class="update-username">
+    <h2>Update Username</h2>
+    <form action="/updateus" method="POST"></form>
+        <input type="text" name="oldusername" placeholder="Old Username" required>
+        <input type="text" name="newusername" placeholder="New Username" required>
+        <button type="submit">Submit</button>
+    </form> 
+</div>
+
+<div class="update-password">
+    <h2>Update Password</h2>
+    <form action="/updatepass" method="POST">
+        <input type="text" name="username" placeholder="Username" required> 
+        <input type="password" name="oldpassword" placeholder="Old Password" required>
+        <input type="password" name="newpassword" placeholder="New Password" required>
+        <input type="password" name="repnewpassword" placeholder="Repeat Password"  required>
+        <button type="submit">Submit</button>
+    </form> 
+</div>
+
+<h2>Upload File</h2>
+<p>To upload a HAR file click <a href='/upload'>here</a></p>
+
+<div class="card-body">
+    <p> Your last upload was made at: </p>
+    <p>Your total Har files in our system are: </p>
+</div>
+
 <a href='/logout'>Logout</a>
 {% endblock %}
