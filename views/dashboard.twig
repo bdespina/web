@@ -1,37 +1,53 @@
 {% extends 'layout.twig' %}
 
+{% block javascripts %}
+{% if isAdmin %}
+
+{% else %}
+<script>
+  $(function () {
+    $('#har-download').on('change', function () {
+      const filename = $(this).val();
+      $('#har-download-form').find('input[name="filename"]').val(filename);
+      $('#har-download-form').submit();
+    });
+  });
+</script>
+{% endif %}
+{% endblock %}
+
 {% block body %}
 <h1>{{title}}</h1>
 <p>Welcome to {{title}}</p>
-
-
-<div class="update-username">
-    <h2>Update Username</h2>
-    <form action="/updateus" method="POST"></form>
-        <input type="text" name="oldusername" placeholder="Old Username" required>
-        <input type="text" name="newusername" placeholder="New Username" required>
-        <button type="submit">Submit</button>
-    </form> 
-</div>
-
-<div class="update-password">
-    <h2>Update Password</h2>
-    <form action="/updatepass" method="POST">
-        <input type="text" name="username" placeholder="Username" required> 
-        <input type="password" name="oldpassword" placeholder="Old Password" required>
-        <input type="password" name="newpassword" placeholder="New Password" required>
-        <input type="password" name="repnewpassword" placeholder="Repeat Password"  required>
-        <button type="submit">Submit</button>
-    </form> 
-</div>
-
-<h2>Upload File</h2>
-<p>To upload a HAR file click <a href='/upload'>here</a></p>
-
-<div class="card-body">
-    <p> Your last upload was made at: </p>
-    <p>Your total Har files in our system are: </p>
-</div>
-
 <a href='/logout'>Logout</a>
+<br><br><br>
+
+{% if isAdmin %}
+
+{% else %}
+<div>
+  <label>
+    Upload HAR file:
+    <form action='/har_upload' method='POST' enctype='multipart/form-data'>
+      <input type='file' name='har_upload'>
+      <input type='submit' value='Upload'>
+    </form>
+  </label>
+</div>
+<br>
+<div>
+  <label>
+    Download HAR file:
+    <select id="har-download">
+      <option disabled selected>Select a HAR file to download</option>
+      {% for file in files %}
+      <option name="{{ file }}">{{ file }}</option>
+      {% endfor %}
+    </select>
+    <form id="har-download-form" action='/har_download' method='POST'>
+      <input name="filename">
+    </form>
+  </label>
+</div>
+{% endif %}
 {% endblock %}
