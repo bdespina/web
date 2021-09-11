@@ -49,5 +49,29 @@
     </form>
   </label>
 </div>
+<br>
+<div>
+  <label>
+    Update Username:
+    <form class="form" action='/update_username' method='POST'>
+        <input type="text" name="oldusername" placeholder="Old Username">
+        <input type="text" name="newusername" placeholder="New Username">
+        <input type='submit' value='Submit'> 
+    </form> 
+  </label>
+</div>
+<br>
+<div>
+  <label>
+    Update Password:
+    <form class="form" action='/update_password' method='POST'>
+      <input type="text" name="username" placeholder="Username"> 
+      <input type="password" name="oldpassword" placeholder="Old Password">
+      <input type="password" name="newpassword" placeholder="New Password">
+      <input type="password" name="repnewpassword" placeholder="Repeat New Password">
+      <input type='submit' value='Submit'>  
+    </form> 
+  </label>
+</div>
 {% endif %}
 {% endblock %}
