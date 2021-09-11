@@ -180,5 +180,73 @@ module.exports = {
         filename
       });
     });
+  },
+  updateUsername: function (body) {
+    const oldusername = body.oldusername;
+    const newusername = body.newusername;
+    return new Promise(async (resolve, reject) => {
+      /*const user = await models.user.findOne({
+        where: {
+          [Op.and]: [
+            { username: oldusername }
+          ]
+        }
+      });*/
+      
+      if (!('oldusername' in body)) {
+        reject({
+          status: 'error',
+          message: 'Invalid request'
+        });
+        return;
+      }
+      
+      
+      await models.user.update({ username: newusername }, {
+        where: {
+          [Op.and]: [
+            { username: oldusername }
+          ]
+        }
+      });
+
+      resolve({
+        status: 'ok',
+        message: 'Username updated successfully'
+      });
+    });    
+  },
+  updatePassword: function (body) {
+    const username = body.username;
+    const oldpassword = body.oldpassword;
+    const newpassword = body.newpassword;
+    const repnewpassword = body.repnewpassword;
+    return new Promise(async (resolve, reject) => {
+      if (!('oldpassword' in body) 
+        || !('username' in body)
+        || !validators.register.password(newpassword)
+        || (newpassword !== repnewpassword)) {
+        reject({
+          status: 'error',
+          message: 'Invalid request'
+        });
+        return;
+      }
+      
+      
+      await models.user.update({ password: newpassword }, {
+        where: {
+          [Op.and]: [
+            { username: body.username },
+            { password: oldpassword }
+          ]
+        }
+      });
+
+      resolve({
+        status: 'ok',
+        message: 'Password updated successfully'
+      });
+    });    
   }
 };
