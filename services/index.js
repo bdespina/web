@@ -1,5 +1,10 @@
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const { Op }  = require('sequelize');
+const uuidv4 = require('uuid').v4;
 const validators = require('../validators');
+const helpers = require('../helpers');
 const models = require('../models');
 
 module.exports = {
@@ -23,7 +28,7 @@ module.exports = {
         email: body.email,
         username: body.username,
         password: body.password,
-        role : 0  //new
+        role: 'user'
       });
 
       await user.save();
@@ -65,9 +70,114 @@ module.exports = {
         return;
       }
 
+      const isAdmin = user.role === 'admin';
+
       resolve({
         status: 'ok',
-        message: 'User logged in successfully'
+        message: 'User logged in successfully',
+        isAdmin,
+        userUuid: user.userUuid
+      });
+    });
+  },
+  handleUpload: function (req) {
+    return new Promise(async (resolve, reject) => {
+      if (!('file' in req)) {
+        reject({
+          status: 'error',
+          message: 'No uploaded file'
+        });
+        return;
+      }
+
+      const parsedData = helpers.parseHarFile(req.file);
+      if (parsedData === null) {
+        reject({
+          status: 'error',
+          message: 'Failed to upload file'
+        });
+        return;
+      }
+
+      const uploadNameUuid = uuidv4();
+      const data = parsedData.map(o => {
+        o.userUuid = req.session.userUuid;
+        o.uploadName = `${uploadNameUuid}-${req.file.originalname}`;
+        return o;
+      });
+
+      await models.har.bulkCreate(data);
+
+      resolve({
+        status: 'ok',
+        message: 'File uploaded successfully'
+      });
+    });
+  },
+  getUserUploads: function(req) {
+    return new Promise(async (resolve, reject) => {
+      const hars = await models.har.findAll({
+        where: {
+          [Op.and]: [
+            { userUuid: req.session.userUuid }
+          ]
+        }
+      });
+
+      if (hars === null) {
+        reject({
+          status: 'error',
+          message: 'Error getting uploaded HARs'
+        });
+        return;
+      }
+
+      const files = [];
+      hars.forEach(o => {
+        if (files.indexOf(o.uploadName) < 0) {
+          files.push(o.uploadName);
+        }
+      });
+
+      resolve({
+        status: 'ok',
+        files
+      });
+    });
+  },
+  handleDownloadHar: function (req) {
+    return new Promise(async (resolve, reject) => {
+      if (!('filename' in req.body)) {
+        reject({
+          status: 'error',
+          message: 'Malformed request'
+        });
+        return;
+      }
+
+      const filename = req.body.filename;
+      const hars = await models.har.findAll({
+        where: {
+          [Op.and]: [
+            { uploadName: filename }
+          ]
+        }
+      });
+
+      const data = [];
+      hars.forEach(o => {
+        delete o.userUuid;
+        delete o.uploadName;
+        data.push(o);
+      });
+
+      const tempDownloadFile = path.join(os.tmpdir(), filename);
+      fs.writeFileSync(tempDownloadFile, JSON.stringify(hars, null, 2));
+
+      resolve({
+        status: 'ok',
+        path: tempDownloadFile,
+        filename
       });
     });
   }
