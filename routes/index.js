@@ -110,7 +110,7 @@ router.post('/update_username', function (req, res, next) {
   services.updateUsername(req.body).then(done => {
     res.redirect('/dashboard');
   }).catch(error => {
-    res.redirect('/dashboard');
+    res.json(error);
   });
 });
 
@@ -118,9 +118,8 @@ router.post('/update_password', function (req, res, next) {
   services.updatePassword(req.body).then(done => {
     res.redirect('/dashboard');
   }).catch(error => {
-    res.redirect('/dashboard');
+    res.json(error);
   });
 });
-
 
 module.exports = router;
